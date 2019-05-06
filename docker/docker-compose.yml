@@ -1,0 +1,134 @@
+version: "3"
+
+services:
+ app:
+  image: ${IMAGE}
+  ports:
+   - "${PORT}:80"
+  volumes:
+   - tasks:/app/storage/app/tasks
+  environment:
+   INITIAL_LAT: "52.50583131"
+   INITIAL_LON: "13.270498918"
+   IDENTIFIER: "REKON"
+   INSURANCE_NAME: "Rekon GmbH"
+   FEATURE_USER_EXPORT: "true"
+   FEATURE_AUTO_EXTRACT_REPORT_IMAGES: "true"
+   FEATURE_REVIEW_REPORTS: "true"
+   FEATURE_POST_PROCESSING: "true"
+   #FEATURE_LOCAL_STORAGE: "true"
+   TEMPLATE_MANAGER_USER_EMAIL: "admin@ergo.de"
+   SESSION_SECURE_COOKIE: "false"
+   #TEST_AUTO_LOGIN: "true"
+   APP_DEBUG: "true"
+   APP_DEBUG_LABEL: "DEMO"
+   APP_DEBUG_ICON: "fa-bug"
+   #APP_ENV: "production"
+   LOG_FORMAT_LINE: "true"
+   #APP_LOG: "single"
+   APP_LOG_LEVEL: "debug"
+   MENU_TASKS_ADD: "true"
+   FEATURE_AUTOASSIGN: "true"
+   FEATURE_TEMPLATE_EDITOR: "true"
+   #FEATURE_SHOW_TEMPLATE_DETAILS: "true"
+   #FEATURE_BACKUP: "true"
+   FEATURE_UPLOAD_DOCUMENTS: "true"
+   #FEATURE_UI_V2: "true"
+   APP_URL: "http://${HOST}:${PORT}"
+   JWT_SECRET: "verysecret1234"
+   JWT_TTL: "720"
+
+   ## Logging ...
+   LOG_EXTENDED: "true"
+   #LOG_MAIL: "josuhr@gmail.com"
+
+   ## Demo-Passwort fuer alle Demo-Nutzer (z.B. admin@ergo.de, gruppenleiter1@ergo.de, ...)
+   DEMO_PASSWORD: "pw007"
+   DEMO_EMAIL_DOMAIN: "ergo.de"
+   ADMIN_PASSWORD: "pw007"
+
+   #
+   PDF_AUTO_CREATE: "false"
+   INFO_AUTO_CREATE: "false"
+
+   ## Demo Config
+   # DISABLE_ERGO_AUTH: "true"
+   # DISABLE_DEMO_AUTH: "true"
+
+   ## Alle URLs starten mit "https://", evtl. notwendig wenn Rocketweb hinter einem Load-Balancer läuft
+   #FORCE_SCHEME: "https"
+ 
+   ## ERGO Report Push API
+   #ERGO_REPORT_URL: "https://regapp-claimsreporting-dev.aws-0228.cloudfirst.digital/reporting"
+   #ERGO_ACCEPT_URL: "https://regapp-accepttask-dev.aws-0228.cloudfirst.digital/accept"
+   #ERGO_STATUS_URL: "https://regapp-statusback-dev.aws-0228.cloudfirst.digital/set"
+   #ERGO_REPORT_URL: "http://app/debug/void"
+   #ERGO_ACCEPT_URL: "http://app/debug/void"
+   #ERGO_STATUS_URL: "http://app/debug/void"
+   ERGO_REPORT_USER: "LC_RegApp_Ext"
+   ERGO_REPORT_PASS: "qqBT7EctdnXpmVUcBjH7"
+
+   ## OAuth2 Configuration
+   LOCAL_AUTH_URL: "http://app/api/v1/authenticate"
+   LOCAL_DASHBOARD_URL: "http://${HOST}:${PORT}/dashboard"
+   LOCAL_LOGIN_URL: "http://${HOST}:${PORT}/login"
+
+   ERGO_REDIRECT: "https://ergo-auth.rocket-es.net/login/ergo/callback"
+
+   #ERGO_CLIENT_ID: "01f0d5a0-598b-41d6-89f7-51d5aeb4bd58"
+   #ERGO_AUTH_URL: "https://sts.ergodev-ergo.com/adfs/oauth2/authorize"
+   #ERGO_AUTH_RES: "urn:id:regulierer-app-abn"
+   #ERGO_TOKEN_URL: "https://sts.ergodev-ergo.com/adfs/oauth2/token"
+
+   ERGO_CLIENT_ID: "5adcb0d0-f9b1-4faf-9b79-72615c457563"
+   ERGO_AUTH_URL: "https://sts.eden-ergo.com/adfs/oauth2/authorize"
+   ERGO_AUTH_RES: "urn:id:regulierer-app-poc"
+   ERGO_TOKEN_URL: "https://sts.eden-ergo.com/adfs/oauth2/token"
+
+   FAKE_REDIRECT: "http://${HOST}:${PORT}/login/fake/callback"
+   FAKE_AUTH_URL: "http://${HOST}:${PORT}/adfs/oauth2/authorize"
+   FAKE_TOKEN_URL: "http://app/adfs/oauth2/token"
+
+   ## Database (Postgres)
+   DB_HOST: database
+   DB_PORT: 5432
+   DB_DATABASE: ergodb
+   DB_USERNAME: postgres
+   DB_PASSWORD: secret123
+
+   ## Filesystem ("S3", "ftp", "local")
+   STORAGE_DRIVER: "local"
+   STORAGE_PREFIX: "tasks"
+
+   ## Configure FTP test filesystem
+   #FTP_HOST: "ftp"
+   #FTP_USER: "ergo"
+   #FTP_PASS: "secret456"
+
+  depends_on:
+   - database
+#   - ftp
+
+ database:
+  image: postgres
+  restart: always
+  environment:
+   POSTGRES_DB: ergodb
+   POSTGRES_PASSWORD: secret123
+  volumes:
+   - postgres-data:/var/lib/postgresql/data
+
+# ftp:
+#  image: stilliard/pure-ftpd:hardened
+#  restart: always
+#  environment:
+#   FTP_USER_NAME: 'ergo'
+#   FTP_USER_PASS: 'secret456'
+#   FTP_USER_HOME: '/home/ergo'
+#  volumes:
+#   - ftp-data:/home
+
+volumes:
+ postgres-data:
+ tasks:
+# ftp-data:
