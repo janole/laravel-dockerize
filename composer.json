@@ -12,6 +12,10 @@
         }
     ],
     "minimum-stability": "dev",
+    "require":
+    {
+        "symfony/yaml": "^4.1"
+    },
     "autoload":
     {
         "psr-4":
