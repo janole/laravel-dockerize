@@ -16,7 +16,7 @@ class ContainerStartup extends Command
      *
      * @var string
      */
-    protected $signature = 'container:startup';
+    protected $signature = 'container:startup {--F|force-first : Force running all first class seeders}';
 
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class ContainerStartup extends Command
      */
     public function handle()
     {
-        return static::startup(false);
+        return $this->startup();
     }
 
     /**
@@ -50,74 +50,67 @@ class ContainerStartup extends Command
      *
      * @return mixed
      */
-    public static function startup($silent = false)
+    public function startup()
     {
-        if (!$silent)
-        {
-            echo "Init " . env("APP_NAME", "Laravel") . "/" . env("APP_VERSION", "0.0.0") . " ...\n";
-        }
+        $this->info("Init " . config("app.name") . "/" . config("dockerize.image") . ":" . config("dockerize.version") . "-" . config("dockerize.branch") . " ...");
 
-        if (static::waitForDatabase() != 0)
+        if ($this->waitForDatabase() != 0)
         {
-            echo "ERROR: Cannot connect to Database " . env("DB_HOST") . " / " . env("DB_DATABASE") . "\n";
+            $db = config("database.connections." . config("database.default"));
+
+            $this->error("ERROR: Cannot connect to database " . @$db["host"] . ":" . @$db["port"] . " / " . @$db["database"]);
 
             return -1;
         }
 
-        if (!($time = static::lastUpdated()))
+        if (!($time = $this->lastUpdated()) && !$this->option("force-first"))
         {
-            echo $time;
             return 0;
         }
 
-        $firstRun = (!Schema::hasTable('users'));
+        $firstRun = !Schema::hasTable('users');
 
-        echo ($firstRun ? "First run" : "Run migrations") . " (" . $time . ") ...\n";
+        if (!$firstRun && $this->option("force-first") && $this->confirm("** WARNING! Use first-run/init seeders? You might lose data!"))
+        {
+            $firstRun = true;
+        }
+
+        $this->info($firstRun ? "First run" : "Run migrations") . " (" . $time . ") ...";
 
         Artisan::call("migrate", ["--force" => true]);
-        echo Artisan::output();
-
-        $UserSeeder = env("USER_SEEDER", "DemoUserSeeder");
-        $PasswordSeeder = env("PASSWORD_SEEDER", "PasswordSeeder");
+        $this->info(trim(Artisan::output()));
 
         if ($firstRun)
         {
-            $classes = ["CatalogSeeder", "CountrySeeder", $UserSeeder, "ExternalStateSeeder", "GroupSeeder", "MenuSeeder", "SimpleStateSeeder", "StateSeeder", "UserStateSeeder", "TemplateSeeder", $PasswordSeeder];
-
-            if (($seeder = env("OPTIONS_ROCKETFORM_STARTUP_INIT_SEEDER")))
-            {
-                $classes = json_decode($seeder, true);
-            }
+            $classes = json_decode(config("dockerize.seed1"), true);
         }
         else
         {
-            $classes = ["MenuSeeder", "StateSeeder", "UserStateSeeder", $PasswordSeeder];
+            $classes = json_decode(config("dockerize.seed2"), true);
+        }
 
-            if (($seeder = env("OPTIONS_ROCKETFORM_STARTUP_UPDATE_SEEDER")))
+        if ($classes)
+        {
+            foreach ($classes as $class)
             {
-                $classes = json_decode($seeder, true);
+                $this->info("Running $class.");
+
+                if (Artisan::call("db:seed", ["--force" => true, "--class" => "$class"]))
+                {
+                    $this->error(trim(Artisan::output()));
+                }
             }
         }
 
-        foreach ($classes as $class)
-        {
-            echo "Running $class.\n";
-
-            Artisan::call("db:seed", ["--force" => true, "--class" => "$class"]);
-            echo Artisan::output();
-        }
-
-        echo "Finished.\n";
+        $this->info("Finished.");
 
         return 0;
     }
 
-    public static function waitForDatabase()
+    public function waitForDatabase()
     {
         for ($i = 0; $i < 60; $i++)
         {
-            usleep(1000 * ($i == 0 ? random_int(100, 1000) : 1000));
-
             try
             {
                 if (DB::connection()->getPdo())
@@ -127,23 +120,23 @@ class ContainerStartup extends Command
             }
             catch (\Exception $e)
             {
-                echo "Waiting for database ...";
+                $msg = "** Waiting for database ...";
 
-                if (env("APP_DEBUG"))
+                if (config("app.debug"))
                 {
-                    echo " (" . $e->getMessage() . ")";
+                    $msg .= " (" . $e->getMessage() . ")";
                 }
 
-                var_dump($e);
-
-                echo "\n";
+                $this->info($msg);
             }
+
+            usleep(1000);
         }
 
         return -1;
     }
 
-    public static function lastUpdated()
+    public function lastUpdated()
     {
         if (!Schema::hasTable('rfInternal'))
         {
@@ -159,7 +152,7 @@ class ContainerStartup extends Command
             });
         }
 
-        echo "Checking Database ...\n";
+        $this->info("Checking Database ...");
 
         $time = microtime(true);
 
@@ -170,7 +163,7 @@ class ContainerStartup extends Command
         else
         if (@floatval($lock->value) > $time - 10.0)
         {
-            echo "Init skipped.\n";
+            $this->info("Init skipped.");
 
             return false;
         }
