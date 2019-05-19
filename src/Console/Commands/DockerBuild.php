@@ -136,8 +136,6 @@ class DockerBuild extends Command
         if (($BRANCH = config("dockerize.branch")) == ":git")
         {
             $BRANCH = exec("git rev-parse --abbrev-ref HEAD");
-
-            $IMAGE .= "-$BRANCH";
         }
 
         $IMAGE.= ":$VERSION-$BRANCH";
