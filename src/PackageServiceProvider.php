@@ -6,6 +6,11 @@ use Illuminate\Support\ServiceProvider;
 
 class PackageServiceProvider extends ServiceProvider
 {
+	public function register()
+	{
+		$this->mergeConfigFrom(__DIR__.'/../config/dockerize.php', 'dockerize');
+	}
+
     public function boot()
     {
         $this->publishes([__DIR__.'/../config/dockerize.php' => config_path('dockerize.php')]);
