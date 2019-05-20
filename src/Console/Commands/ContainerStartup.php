@@ -130,7 +130,7 @@ class ContainerStartup extends Command
                 $this->info($msg);
             }
 
-            usleep(1000);
+            sleep(1);
         }
 
         return -1;
