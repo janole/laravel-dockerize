@@ -1,34 +1,27 @@
 {
     "name": "janole/laravel-dockerize",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A very simple tool to containerize your Laravel app",
     "type": "project",
     "license": "MIT",
-    "authors":
-    [
+    "authors": [
         {
             "name": "Jan Ole Suhr",
             "email": "ole@janole.com"
         }
     ],
     "minimum-stability": "dev",
-    "require":
-    {
+    "require": {
         "symfony/yaml": "^4.1"
     },
-    "autoload":
-    {
-        "psr-4":
-        {
+    "autoload": {
+        "psr-4": {
             "janole\\Laravel\\Dockerize\\": "src/"
         }
     },
-    "extra":
-    {
-        "laravel":
-        {
-            "providers":
-            [
+    "extra": {
+        "laravel": {
+            "providers": [
                 "janole\\Laravel\\Dockerize\\PackageServiceProvider"
             ]
         }
