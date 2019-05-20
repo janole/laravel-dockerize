@@ -67,7 +67,23 @@ class DockerBuild extends Command
         //
         $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', config("dockerize.base-image"), $dockerfile);
 
-        $dockerfile = str_replace('${DOCKERIZE_ENV}', config("dockerize.env", ".env"), $dockerfile);
+        //
+        if (($env = config("dockerize.env")) && file_exists(base_path($env)))
+            $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
+        /*
+        else
+        if (($env = config("app.env")) && file_exists(base_path($env)))
+            $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
+        */
+        else
+        if (($env = ".env") && file_exists(base_path($env)))
+            $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
+        else
+        {
+            $this->error("Cannot find a proper .env file!");
+
+            exit(-2);
+        }
 
         //
         $imageInfo = static::getImageInfo();
@@ -127,18 +143,30 @@ class DockerBuild extends Command
 
         if (config("dockerize.version") == ":git")
         {
-            $COUNT = @intval(exec("git rev-list HEAD --count"));
+            $BUILD = @exec("git rev-list HEAD --count 2>/dev/null");
+        }
 
-            $VERSION .= ".$COUNT";
+        if (strlen($BUILD) > 0)
+        {
+            $VERSION .= (@strlen($VERSION) > 0 ? "." : "") . $BUILD;
         }
 
         //
         if (($BRANCH = config("dockerize.branch")) == ":git")
         {
-            $BRANCH = exec("git rev-parse --abbrev-ref HEAD");
+            $BRANCH = @exec("git rev-parse --abbrev-ref HEAD 2>/dev/null");
         }
 
-        $IMAGE.= ":$VERSION-$BRANCH";
+        //
+        if (strlen($VERSION) > 0)
+        {
+            $IMAGE.= (strpos($IMAGE, ":") !== false ? "-" : ":") . $VERSION;
+        }
+
+        if (strlen($BRANCH) > 0)
+        {
+            $IMAGE.= (strpos($IMAGE, ":") !== false ? "-" : ":") . $BRANCH;
+        }
 
         return ["image" => $IMAGE, "version" => $VERSION, "branch" => $BRANCH];
     }
