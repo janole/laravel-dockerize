@@ -153,15 +153,5 @@ class DockerCompose extends Command
         }
 
         return 0;
-
-        //
-        $NAME = "abc";
-
-        //
-        $cmd = "cd " . base_path() . " && IMAGE=$IMAGE && PORT=3037 && docker-compose -f $dockercompose -p $NAME";
-        echo "> $cmd\n";
-        // passthru($cmd);
-
-    	return 0;
     }
 }
