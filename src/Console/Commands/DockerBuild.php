@@ -70,13 +70,9 @@ class DockerBuild extends Command
         //
         if (($env = config("dockerize.env")) && file_exists(base_path($env)))
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
-        /*
-        else
-        if (($env = config("app.env")) && file_exists(base_path($env)))
-            $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
-        */
-        else
-        if (($env = ".env") && file_exists(base_path($env)))
+        }
+        elseif (($env = ".env") && file_exists(base_path($env)))
+        {
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
         else
         {
