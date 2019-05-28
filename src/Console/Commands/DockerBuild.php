@@ -49,9 +49,11 @@ class DockerBuild extends Command
     {
         $buildpath = ".";
 
+        /* ignore for now ... TODO: make it optional later on ...
         // Copy our own .dockerignore (potentially dangerous!)
         $dockerignore = file_get_contents(base_path("vendor/janole/laravel-dockerize/docker/dockerignore"));
         file_put_contents(base_path(".dockerignore"), $dockerignore);
+        */
 
         //
         if (@strlen(config("dockerize.image")) == 0)
@@ -69,11 +71,13 @@ class DockerBuild extends Command
 
         //
         if (($env = config("dockerize.env")) && file_exists(base_path($env)))
+        {
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
         }
         elseif (($env = ".env") && file_exists(base_path($env)))
         {
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
+        }
         else
         {
             $this->error("Cannot find a proper .env file!");
