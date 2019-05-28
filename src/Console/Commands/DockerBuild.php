@@ -113,7 +113,7 @@ class DockerBuild extends Command
         }
 
         //
-        $cmd = "cd " . base_path() . " && docker build --squash -t " . $imageInfo["image"] . " -f $buildpath/Dockerfile .";
+        $cmd = "cd " . base_path() . " && docker build -t " . $imageInfo["image"] . " -f $buildpath/Dockerfile .";
         $this->info($cmd);
 
         $fd = popen("($cmd) 2>&1", "r");
