@@ -155,6 +155,7 @@ class DockerBuild extends Command
         if (($BRANCH = config("dockerize.branch")) == ":git")
         {
             $BRANCH = @exec("git rev-parse --abbrev-ref HEAD 2>/dev/null");
+            $BRANCH = preg_replace("/[^0-9a-z.]/i", "-", $BRANCH);
         }
 
         //
