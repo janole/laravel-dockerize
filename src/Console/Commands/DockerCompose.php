@@ -81,6 +81,14 @@ class DockerCompose extends Command
             $env[$key] = $val;
         }
 
+        foreach ($_ENV as $key => $val)
+        {
+            if (strpos($key, "DOCKERIZE_COMPOSE_ENV_") === 0)
+            {
+                $env[substr($key, strlen("DOCKERIZE_COMPOSE_ENV_"))] = $val;
+            }
+        }
+
         $app["environment"] = $env;
 
         //
