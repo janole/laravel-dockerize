@@ -147,16 +147,20 @@ class DockerBuild extends Command
         $IMAGE = config("dockerize.image");
 
         //
-        $VERSION = env("APP_VERSION");
-
-        if (config("dockerize.version") == ":git")
+        if (($VERSION = config("dockerize.version")) == ":git")
         {
-            $BUILD = @exec("git rev-list HEAD --count 2>/dev/null");
+            $VERSION = env("APP_VERSION");
+
+            if (@strlen($BUILD = @exec("git rev-list HEAD --count 2>/dev/null")) > 0)
+            {
+                $VERSION .= (@strlen($VERSION) > 0 ? "." : "") . $BUILD;
+            }
         }
 
-        if (strlen($BUILD) > 0)
+        //
+        if (@strlen($VERSION) == 0)
         {
-            $VERSION .= (@strlen($VERSION) > 0 ? "." : "") . $BUILD;
+            $VERSION = env("APP_VERSION");
         }
 
         //
