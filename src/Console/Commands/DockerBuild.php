@@ -11,7 +11,7 @@ class DockerBuild extends Command
      *
      * @var string
      */
-    protected $signature = 'docker:build {--p|print : Only print the Dockerfile} {--s|save : Only save the Dockerfile}';
+    protected $signature = 'docker:build {--p|print : Only print the Dockerfile} {--s|save : Only save the Dockerfile} {--P|push : Push the image}';
 
     /**
      * The console command description.
@@ -114,6 +114,14 @@ class DockerBuild extends Command
 
         //
         $cmd = "cd " . base_path() . " && docker build -t " . $imageInfo["image"] . " -f $buildpath/Dockerfile .";
+
+        //
+        if ($this->option("push"))
+        {
+            $cmd .= " && docker push " . $imageInfo["image"];
+        }
+
+        //
         $this->info($cmd);
 
         $fd = popen("($cmd) 2>&1", "r");
