@@ -142,14 +142,26 @@ class DockerBuild extends Command
 
     public static function loadConfig()
     {
-        if (file_exists(base_path(".dockerize.env")))
-        {
-            (new Dotenv(base_path(), ".dockerize.env"))->overload();
-        }
+        static::loadEnv(".dockerize.env");
 
-        if (($cfg = env("COMPOSE_PROJECT_NAME")) && file_exists(base_path(".$cfg/.dockerize.env")))
+        if (($cfg = env("COMPOSE_PROJECT_NAME")))
         {
-            (new Dotenv(base_path(), ".$cfg/.dockerize.env"))->overload();
+            static::loadEnv(".$cfg/.dockerize.env");
+        }
+    }
+
+    private static function loadEnv($file)
+    {
+        if (file_exists(base_path($file)))
+        {
+            try
+            {
+                (new Dotenv(base_path(), $file))->overload();
+            }
+            catch (\Throwable $th)
+            {
+                Dotenv::create(base_path(), $file)->overload();
+            }
         }
     }
 
