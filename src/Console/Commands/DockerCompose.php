@@ -44,6 +44,8 @@ class DockerCompose extends Command
 
     public function compose()
     {
+        DockerBuild::loadConfig();
+
         //
         $imageInfo = DockerBuild::getImageInfo();
         $IMAGE = $imageInfo["image"];
@@ -65,16 +67,16 @@ class DockerCompose extends Command
         $app = [];
 
         $app["image"] = $IMAGE;
-        $app["ports"] = [config("dockerize.port", 3333) . ":80"];
+        $app["ports"] = [env("DOCKERIZE_PORT", 3333) . ":80"];
 
-        if (($appVolumes = json_decode(config("dockerize.share"), true)))
+        if (($appVolumes = json_decode(env("DOCKERIZE.SHARE"), true)))
         {
             $app["volumes"] = $appVolumes;
         }
 
         $env = [];
-        $env["APP_URL"] = "http://" . config("dockerize.host", "localhost") . ":" . config("dockerize.port", 3333);
-        $env["APP_ENV"] = config("app.env", "production");
+        $env["APP_URL"] = "http://" . env("DOCKERIZE_HOST", "localhost") . ":" . env("DOCKERIZE_PORT", 3333);
+        $env["APP_ENV"] = env("APP_ENV", "production");
 
         foreach ($DB as $key => $val)
         {
@@ -117,7 +119,7 @@ class DockerCompose extends Command
         $volumes["postgres-data"] = ["labels" => ["com.janole.laravel-dockerize.description" => "Laravel Database Volume"]];
 
         //
-        if (($BRANCH = config("dockerize.branch")) == ":git")
+        if (($BRANCH = env("DOCKERIZE_BRANCH", ":git")) == ":git")
         {
             $BRANCH = exec("git rev-parse --abbrev-ref HEAD");
         }

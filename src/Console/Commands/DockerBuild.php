@@ -4,6 +4,8 @@ namespace janole\Laravel\Dockerize\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use \Dotenv\Dotenv;
+
 class DockerBuild extends Command
 {
     /**
@@ -47,6 +49,8 @@ class DockerBuild extends Command
      */
     public function build($silent = false)
     {
+        static::loadConfig();
+
         $buildpath = ".";
 
         /* ignore for now ... TODO: make it optional later on ...
@@ -56,7 +60,7 @@ class DockerBuild extends Command
         */
 
         //
-        if (@strlen(config("dockerize.image")) == 0)
+        if (@strlen(env("DOCKERIZE_IMAGE")) == 0)
         {
             $this->error("DOCKERIZE_IMAGE missing. Please specify a base name for your docker image.");
 
@@ -67,10 +71,10 @@ class DockerBuild extends Command
         $dockerfile = file_get_contents(base_path("vendor/janole/laravel-dockerize/docker/Dockerfile"));
 
         //
-        $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', config("dockerize.base-image"), $dockerfile);
+        $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', env("DOCKERIZE_BASE_IMAGE", "janole/laravel-nginx-postgres:unoconv"), $dockerfile);
 
         //
-        if (($env = config("dockerize.env")) && file_exists(base_path($env)))
+        if (($env = env("DOCKERIZE_ENV")) && file_exists(base_path($env)))
         {
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
         }
@@ -136,22 +140,32 @@ class DockerBuild extends Command
         return 0;
     }
 
+    public static function loadConfig()
+    {
+        if (file_exists(base_path(".dockerize.env")))
+        {
+            (new Dotenv(base_path(), ".dockerize.env"))->overload();
+        }
+
+        if (($cfg = env("COMPOSE_PROJECT_NAME")) && file_exists(base_path(".$cfg/.dockerize.env")))
+        {
+            (new Dotenv(base_path(), ".$cfg/.dockerize.env"))->overload();
+        }
+    }
+
     public static function getImageInfo()
     {
-        if (@strlen(config("dockerize.image")) == 0)
+        if (@strlen(($IMAGE = env("DOCKERIZE_IMAGE"))) == 0)
         {
             return null;
         }
 
         //
-        $IMAGE = config("dockerize.image");
-
-        //
-        if (($VERSION = config("dockerize.version")) == ":git")
+        if (($VERSION = env("DOCKERIZE_VERSION", ":git")) == ":git")
         {
             $VERSION = env("APP_VERSION");
 
-            if (@strlen($BUILD = @exec("git rev-list HEAD --count 2>/dev/null")) > 0)
+            if (@strlen($BUILD = static::gitCountRefs()) > 0)
             {
                 $VERSION .= (@strlen($VERSION) > 0 ? "." : "") . $BUILD;
             }
@@ -160,13 +174,13 @@ class DockerBuild extends Command
         //
         if (@strlen($VERSION) == 0)
         {
-            $VERSION = env("APP_VERSION");
+            $VERSION = env("APP_VERSION", "0.0");
         }
 
         //
-        if (($BRANCH = config("dockerize.branch")) == ":git")
+        if (($BRANCH = env("DOCKERIZE_BRANCH", ":git")) == ":git")
         {
-            $BRANCH = @exec("git rev-parse --abbrev-ref HEAD 2>/dev/null");
+            $BRANCH = static::gitCurrentBranch();
             $BRANCH = preg_replace("/[^0-9a-z.]/i", "-", $BRANCH);
         }
 
@@ -182,5 +196,19 @@ class DockerBuild extends Command
         }
 
         return ["image" => $IMAGE, "version" => $VERSION, "branch" => $BRANCH];
+    }
+
+    private static function gitCurrentBranch()
+    {
+        $HEAD = @file_get_contents(base_path(".git/HEAD"));
+
+        preg_match("#ref:.*refs/heads/(.*)#", $HEAD, $ret);
+
+        return @$ret[1];
+    }
+
+    private static function gitCountRefs()
+    {
+        return @intval(count(file(base_path(".git/logs/HEAD"))));
     }
 }
