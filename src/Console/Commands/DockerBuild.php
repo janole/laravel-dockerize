@@ -94,6 +94,7 @@ class DockerBuild extends Command
 
         $dockerfile = str_replace('${DOCKERIZE_VERSION}', $imageInfo["version"], $dockerfile);
         $dockerfile = str_replace('${DOCKERIZE_BRANCH}', $imageInfo["branch"], $dockerfile);
+        $dockerfile = str_replace('${DOCKERIZE_COMMIT}', $imageInfo["commit"], $dockerfile);
 
         //
         if ($this->option("print"))
@@ -212,13 +213,21 @@ class DockerBuild extends Command
             $IMAGE.= (strpos($IMAGE, ":") !== false ? "-" : ":") . $BRANCH;
         }
 
-        return ["image" => $IMAGE, "version" => $VERSION, "branch" => $BRANCH];
+        return ["image" => $IMAGE, "version" => $VERSION, "branch" => $BRANCH, "commit" => static::gitCurrentCommit()];
     }
 
     private static function gitCurrentBranch()
     {
         $pwd = base_path();
         $cmd = "docker run -v '$pwd:/git' alpine/git rev-parse --abbrev-ref HEAD 2>/dev/null";
+
+        return @exec($cmd);
+    }
+
+    private static function gitCurrentCommit()
+    {
+        $pwd = base_path();
+        $cmd = "docker run -v '$pwd:/git' alpine/git rev-parse --short HEAD 2>/dev/null";
 
         return @exec($cmd);
     }
