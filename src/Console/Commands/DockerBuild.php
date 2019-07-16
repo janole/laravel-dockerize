@@ -146,7 +146,12 @@ class DockerBuild extends Command
 
         if (($cfg = env("COMPOSE_PROJECT_NAME")))
         {
-            static::loadEnv(".$cfg/.dockerize.env");
+            static::loadEnv(".$cfg/dockerize.env");
+        }
+
+        if (($cfg = env("APP_ENV")))
+        {
+            static::loadEnv(".$cfg/dockerize.env");
         }
     }
 
@@ -212,15 +217,17 @@ class DockerBuild extends Command
 
     private static function gitCurrentBranch()
     {
-        $HEAD = @file_get_contents(base_path(".git/HEAD"));
+        $pwd = base_path();
+        $cmd = "docker run -v '$pwd:/git' alpine/git rev-parse --abbrev-ref HEAD 2>/dev/null";
 
-        preg_match("#ref:.*refs/heads/(.*)#", $HEAD, $ret);
-
-        return @$ret[1];
+        return @exec($cmd);
     }
 
     private static function gitCountRefs()
     {
-        return @intval(count(file(base_path(".git/logs/HEAD"))));
+        $pwd = base_path();
+        $cmd = "docker run -v '$pwd:/git' alpine/git rev-list HEAD --count 2>/dev/null";
+
+        return @exec($cmd);
     }
 }
