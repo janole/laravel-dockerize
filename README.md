@@ -11,12 +11,6 @@ Do you want to easily create a Docker image from your Laravel App? Then this pro
 $ composer require janole/laravel-dockerize
 ```
 
-Optionally publish the configuration via:
-
-```
-$ php artisan vendor:publish --provider="janole\Laravel\Dockerize\PackageServiceProvider"
-```
-
 ## Usage
 
 **1. First, you need to specify the (base-)name of the docker image**. Add the following variable to your `.env` file:
