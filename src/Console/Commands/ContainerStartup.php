@@ -52,7 +52,7 @@ class ContainerStartup extends Command
      */
     public function startup()
     {
-        $this->info("Init " . config("app.name") . "/" . config("dockerize.image") . ":" . config("dockerize.version") . "-" . config("dockerize.branch") . " ...");
+        $this->info("Init " . env("APP_NAME") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
 
         if ($this->waitForDatabase() != 0)
         {
@@ -82,11 +82,11 @@ class ContainerStartup extends Command
 
         if ($firstRun)
         {
-            $classes = json_decode(config("dockerize.seed1"), true);
+            $classes = json_decode(env("DOCKERIZE_SEED1"), true);
         }
         else
         {
-            $classes = json_decode(config("dockerize.seed2"), true);
+            $classes = json_decode(env("DOCKERIZE_SEED2"), true);
         }
 
         if ($classes)
