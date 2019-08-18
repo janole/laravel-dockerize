@@ -90,6 +90,9 @@ class DockerBuild extends Command
         }
 
         //
+        $dockerfile = str_replace('${DOCKERIZE_LOCALE}', env("DOCKERIZE_LOCALE", config("app.locale")), $dockerfile);
+
+        //
         $imageInfo = static::getImageInfo();
 
         $dockerfile = str_replace('${DOCKERIZE_VERSION}', $imageInfo["version"], $dockerfile);

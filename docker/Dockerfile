@@ -16,6 +16,14 @@ COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
 
 RUN true \
 #
+# Enable Locale
+#
+    && sed "s/^#[ \t]*\(${DOCKERIZE_LOCALE}\)/\\1/" -i /etc/locale.gen \
+#
+# Install/generate locale
+#
+    && locale-gen \
+#
 # Run composer
 #
 	&& composer --no-dev install \
