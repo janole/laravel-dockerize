@@ -7,7 +7,7 @@ Do you want to easily create a Docker image from your Laravel App? Then this pro
 > !! NOTICE !! So far, this project is severely limited to some base dependencies (like PostgreSQL for example.)
 
 ## Installation
-```
+```console
 $ composer require janole/laravel-dockerize
 ```
 
@@ -25,31 +25,31 @@ or
 DOCKERIZE_IMAGE="my-own.docker-registry.com/my-shiny-new-app"
 ```
 
-> If you're using git already, `laravel-dockerize` will try to automatically add some version and branch tags to the image name.
+> If you're using git, `laravel-dockerize` will try to automatically add some version and branch tags to the image name.
 
 **2. Now build the image:**
 
-```
+```console
 $ php artisan docker:build
-cd /Users/ole/projects/Laravel/test-app && docker build --squash -t my-shiny-new-app -f ./Dockerfile .
+cd /Users/ole/projects/Laravel/test-app && docker build -t my-shiny-new-app:0.1-master .
 ...
-* Successfully tagged my-shiny-new-app:0.1.1
+* Successfully tagged my-shiny-new-app:0.1-master
 ```
 
-Yay! Now you've got your first image named `my-shiny-new-app:0.1.1`
+Yay! Now you've got your first image named `my-shiny-new-app:0.1-master`
 
 > !! NOTICE !! The Dockerfile used to create the image will be automatically saved in your project's root.
 
 **3. Create a docker-compose.yml file in the project root:**
 
-```
+```console
 $ php artisan docker:compose -s 
 File saved as /Users/ole/projects/Laravel/test-app/docker-compose.yml
 ```
 
 **4. Run the project via docker-compose:**
 
-```
+```console
 $ docker-compose up [-d]
 Creating network "test-app_default" with the default driver
 Creating volume "test-app_postgres-data" with default driver
