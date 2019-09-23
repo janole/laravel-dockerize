@@ -1,7 +1,7 @@
 {
     "name": "janole/laravel-dockerize",
     "description": "A very simple tool to containerize your Laravel app",
-    "type": "project",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
