@@ -161,9 +161,7 @@ class DockerCompose extends Command
 
         if ($ret != 0)
         {
-            $this->error("Please build $IMAGE first.");
-
-            return -1;
+            $this->warn("Please build $IMAGE first.");
         }
 
         //
