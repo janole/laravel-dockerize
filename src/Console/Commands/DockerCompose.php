@@ -4,8 +4,6 @@ namespace janole\Laravel\Dockerize\Console\Commands;
 
 use Illuminate\Console\Command;
 
-use Symfony\Component\Yaml\Yaml;
-
 class DockerCompose extends Command
 {
     /**
@@ -136,7 +134,7 @@ class DockerCompose extends Command
             "volumes" => $volumes,
         ];
 
-        $dockercompose = Yaml::dump($yaml, 10, 2);
+        $dockercompose = static::yamlize($yaml);
 
         if ($this->option("print"))
         {
@@ -185,5 +183,35 @@ class DockerCompose extends Command
         pclose($fd);
         
         return 0;
+    }
+
+    public static function yamlize($array, $indent = 0)
+    {
+        $yaml = "";
+
+        foreach ($array as $key => $val)
+        {
+            if (is_array($val))
+            {
+                $yaml .= str_repeat(" ", $indent) . "$key:\n";
+
+                $yaml .= static::yamlize($val, $indent + 1);
+            }
+            else
+            {
+                if (@intval($key) > 0 || $key == "0")
+                {
+                    $key = "-";
+                }
+                else
+                {
+                    $key.= ":";
+                }
+
+                $yaml .= str_repeat(" ", $indent) . "$key \"" . str_replace('"', "'", $val) . "\"\n";
+            }
+        }
+
+        return $yaml;
     }
 }
