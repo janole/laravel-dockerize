@@ -35,4 +35,4 @@ RUN true \
 # Create startup script
 #
 	&& printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
-	&& chmod u+x /container-startup.sh
+	&& chmod a+x /container-startup.sh
