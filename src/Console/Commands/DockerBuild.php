@@ -100,6 +100,9 @@ class DockerBuild extends Command
         $dockerfile = str_replace('${DOCKERIZE_COMMIT}', $imageInfo["commit"], $dockerfile);
 
         //
+        $dockerfile = str_replace('${DOCKERIZE_CONTAINER_USER}', env("DOCKERIZE_CONTAINER_USER", "root"), $dockerfile);
+
+        //
         if ($this->option("print"))
         {
             $this->info($dockerfile);

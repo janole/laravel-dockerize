@@ -14,6 +14,9 @@ COPY --chown=www-data:www-data . /app
 # Pick the right .env file for the container
 COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
 
+# Switch to root
+USER root
+
 RUN true \
 #
 # Enable Locale
@@ -36,3 +39,6 @@ RUN true \
 #
 	&& printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
 	&& chmod a+x /container-startup.sh
+
+# Switch back to container user
+USER ${DOCKERIZE_CONTAINER_USER}
