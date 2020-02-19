@@ -65,7 +65,7 @@ class DockerCompose extends Command
         $app = [];
 
         $app["image"] = $IMAGE;
-        $app["ports"] = ["0.0.0.0:" . env("DOCKERIZE_PORT", 3333) . ":80"];
+        $app["ports"] = ["0.0.0.0:" . env("DOCKERIZE_PORT", 3333) . ":" . env("DOCKERIZE_CONTAINER_PORT", 80)];
 
         if (($appVolumes = json_decode(env("DOCKERIZE_SHARE"), true)))
         {
