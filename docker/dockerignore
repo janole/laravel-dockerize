@@ -1,7 +1,4 @@
 #
-node_modules
-
-#
 **/Dockerfile
 **/docker-compose.yml
 
@@ -9,3 +6,4 @@ node_modules
 **/.git*
 **/.*.swp
 **/.history
+**/.idea

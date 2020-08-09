@@ -4,6 +4,9 @@
 # Visual Studio Code
 .history
 
+# IDEA
+.idea
+
 # Composer
 vendor
 composer.lock
