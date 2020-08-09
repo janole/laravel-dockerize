@@ -75,7 +75,7 @@ class ContainerStartup extends Command
             $firstRun = true;
         }
 
-        $this->info($firstRun ? "First run" : "Run migrations") . " (" . $time . ") ...";
+        $this->info(($firstRun ? "First run" : "Run migrations") . " (" . $time . ") ...");
 
         Artisan::call("migrate", ["--force" => true]);
         $this->info(trim(Artisan::output()));
