@@ -167,20 +167,6 @@ class DockerCompose extends Command
         file_put_contents($file = base_path("docker-compose.yml"), $dockercompose);
 
         $this->info("File saved as $file");
-        return 0;
-
-        //
-        $cmd = "cd " . base_path() . " && docker-compose up -d";
-        $this->info($cmd);
-
-        $fd = popen("($cmd) 2>&1", "r");
-
-        while (($line = fgets($fd)) !== FALSE)
-        {
-            $this->line("* " . trim($line));
-        }
-
-        pclose($fd);
         
         return 0;
     }

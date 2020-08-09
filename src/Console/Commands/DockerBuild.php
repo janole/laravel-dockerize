@@ -3,7 +3,6 @@
 namespace janole\Laravel\Dockerize\Console\Commands;
 
 use Illuminate\Console\Command;
-
 use \Dotenv\Dotenv;
 
 class DockerBuild extends Command
