@@ -37,7 +37,7 @@ class DockerCompose extends Command
      */
     public function handle()
     {
-        $this->compose();
+        return $this->compose();
     }
 
     public function compose()
@@ -167,7 +167,7 @@ class DockerCompose extends Command
         file_put_contents($file = base_path("docker-compose.yml"), $dockercompose);
 
         $this->info("File saved as $file");
-        
+
         return 0;
     }
 
