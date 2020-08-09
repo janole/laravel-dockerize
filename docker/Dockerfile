@@ -29,16 +29,16 @@ RUN true \
 #
 # Run composer
 #
-	&& composer --no-dev install \
+    && composer --no-dev install \
 #
 # Clear cache
 #
-	&& php artisan view:clear \
+    && php artisan view:clear \
 #
 # Create startup script
 #
-	&& printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
-	&& chmod a+x /container-startup.sh
+    && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
+    && chmod a+x /container-startup.sh
 
 # Switch back to container user
 USER ${DOCKERIZE_CONTAINER_USER}
