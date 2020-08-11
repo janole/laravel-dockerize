@@ -11,7 +11,7 @@ class DockerCompose extends Command
      *
      * @var string
      */
-    protected $signature = 'docker:compose {--p|print : Only print the docker-compose-yml only} {--s|save : Only save the docker-compose.yml}';
+    protected $signature = 'docker:compose {--p|print : Only print the docker-compose.yml only} {--s|save : Only save the docker-compose.yml}';
 
     /**
      * The console command description.
