@@ -3,7 +3,7 @@
 namespace janole\Laravel\Dockerize\Console\Commands;
 
 use Illuminate\Console\Command;
-use \Dotenv\Dotenv;
+use Dotenv\Dotenv;
 
 class DockerBuild extends Command
 {
@@ -136,7 +136,7 @@ class DockerBuild extends Command
 
         $fd = popen("($cmd) 2>&1", "r");
 
-        while (($line = fgets($fd)) !== FALSE)
+        while (($line = fgets($fd)) !== false)
         {
             $this->line("* " . trim($line));
         }
