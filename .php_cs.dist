@@ -7,7 +7,6 @@ $finder = PhpCsFixer\Finder::create()
 
 return PhpCsFixer\Config::create()
     ->setRules([
-        '@PSR2' => true,
         'braces' => [
             'position_after_control_structures' => 'next',
             'position_after_functions_and_oop_constructs' => 'next',
