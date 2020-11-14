@@ -52,7 +52,7 @@ class ContainerStartup extends Command
      */
     public function startup()
     {
-        $this->info("Init " . env("APP_NAME") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
+        $this->info("Init " . config("app.name") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
 
         if ($this->waitForDatabase() != 0)
         {
@@ -163,8 +163,7 @@ class ContainerStartup extends Command
         {
             DB::table('rfInternal')->insert(["name" => "lock.db", "value" => $time]);
         }
-        else
-        if (@floatval($lock->value) > $time - 10.0)
+        else if (@floatval($lock->value) > $time - 10.0)
         {
             $this->info("Init skipped.");
 
