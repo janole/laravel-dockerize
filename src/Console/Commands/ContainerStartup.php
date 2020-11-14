@@ -163,8 +163,7 @@ class ContainerStartup extends Command
         {
             DB::table('rfInternal')->insert(["name" => "lock.db", "value" => $time]);
         }
-        else
-        if (@floatval($lock->value) > $time - 10.0)
+        else if (@floatval($lock->value) > $time - 10.0)
         {
             $this->info("Init skipped.");
 
