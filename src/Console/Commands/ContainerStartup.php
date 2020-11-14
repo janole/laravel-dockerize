@@ -80,25 +80,28 @@ class ContainerStartup extends Command
         Artisan::call("migrate", ["--force" => true]);
         $this->info(trim(Artisan::output()));
 
-        if ($firstRun)
-        {
-            $classes = json_decode(env("DOCKERIZE_SEED1"), true);
-        }
-        else
-        {
-            $classes = json_decode(env("DOCKERIZE_SEED2"), true);
-        }
+        $id = $firstRun ? "1" : "2";
 
-        if ($classes)
+        $classes = json_decode(env("DOCKERIZE_SEED$id"), true) ?? [];
+        $artisan = json_decode(env("DOCKERIZE_ARTISAN$id"), true) ?? [];
+
+        foreach ($classes as $class)
         {
-            foreach ($classes as $class)
+            $this->info("Running $class.");
+
+            if (Artisan::call("db:seed", ["--force" => true, "--class" => "$class"]))
             {
-                $this->info("Running $class.");
+                $this->error(trim(Artisan::output()));
+            }
+        }
 
-                if (Artisan::call("db:seed", ["--force" => true, "--class" => "$class"]))
-                {
-                    $this->error(trim(Artisan::output()));
-                }
+        foreach ($artisan as $command)
+        {
+            $this->info("Running $command.");
+
+            if (Artisan::call($command))
+            {
+                $this->error(trim(Artisan::output()));
             }
         }
 
