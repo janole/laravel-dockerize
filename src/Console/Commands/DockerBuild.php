@@ -223,7 +223,6 @@ class DockerBuild extends Command
 
     private static function gitCurrentBranch()
     {
-        $pwd = base_path();
         $cmd = env("DOCKERIZE_GIT", "git") . " rev-parse --abbrev-ref HEAD 2>/dev/null";
 
         return @exec($cmd);
@@ -231,7 +230,6 @@ class DockerBuild extends Command
 
     private static function gitCurrentCommit()
     {
-        $pwd = base_path();
         $cmd = env("DOCKERIZE_GIT", "git") . " rev-parse --short HEAD 2>/dev/null";
 
         return @exec($cmd);
@@ -239,7 +237,6 @@ class DockerBuild extends Command
 
     private static function gitCountRefs()
     {
-        $pwd = base_path();
         $cmd = env("DOCKERIZE_GIT", "git") . " rev-list HEAD --count 2>/dev/null";
 
         return @exec($cmd);
