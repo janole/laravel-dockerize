@@ -52,7 +52,7 @@ class ContainerStartup extends Command
      */
     public function startup()
     {
-        $this->info("Init " . env("APP_NAME") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
+        $this->info("Init " . config("app.name") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
 
         if ($this->waitForDatabase() != 0)
         {
