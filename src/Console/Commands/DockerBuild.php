@@ -70,7 +70,7 @@ class DockerBuild extends Command
         $dockerfile = file_get_contents(base_path("vendor/janole/laravel-dockerize/docker/Dockerfile"));
 
         //
-        $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', env("DOCKERIZE_BASE_IMAGE", "janole/laravel-nginx-postgres:unoconv"), $dockerfile);
+        $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', env("DOCKERIZE_BASE_IMAGE", "janole/laravel-nginx-postgres"), $dockerfile);
 
         //
         if (($env = env("DOCKERIZE_ENV")) && file_exists(base_path($env)))
