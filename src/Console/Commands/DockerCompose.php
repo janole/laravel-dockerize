@@ -117,12 +117,6 @@ class DockerCompose extends Command
         $volumes["postgres-data"] = ["labels" => ["com.janole.laravel-dockerize.description" => "Laravel Database Volume"]];
 
         //
-        if (($BRANCH = env("DOCKERIZE_BRANCH", ":git")) == ":git")
-        {
-            $BRANCH = exec("git rev-parse --abbrev-ref HEAD");
-        }
-
-        //
         $yaml =
         [
             "version" => "3",
