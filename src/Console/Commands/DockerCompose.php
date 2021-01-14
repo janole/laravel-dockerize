@@ -33,14 +33,14 @@ class DockerCompose extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         return $this->compose();
     }
 
-    public function compose()
+    public function compose(): int
     {
         DockerBuild::loadConfig();
 

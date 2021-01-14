@@ -34,19 +34,14 @@ class DockerBuild extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $this->build(false);
+        return $this->build(false);
     }
 
-    /**
-     * ...
-     *
-     * @return mixed
-     */
-    public function build($silent = false)
+    public function build($silent = false): int
     {
         static::loadConfig();
 
@@ -63,7 +58,7 @@ class DockerBuild extends Command
         {
             $this->error("DOCKERIZE_IMAGE missing. Please specify a base name for your docker image.");
 
-            exit(-1);
+            return -1;
         }
 
         //
@@ -85,7 +80,7 @@ class DockerBuild extends Command
         {
             $this->error("Cannot find a proper .env file!");
 
-            exit(-2);
+            return -2;
         }
 
         //
