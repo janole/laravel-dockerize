@@ -1,6 +1,12 @@
 {
     "name": "janole/laravel-dockerize",
     "description": "A very simple tool to containerize your Laravel app",
+    "keywords": [
+        "laravel",
+        "docker",
+        "dockerize",
+        "containerize"
+    ],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.1|^8.0",
         "laravel/framework": "^5.5|^6.0|^7.0|^8.0",
         "vlucas/phpdotenv": "^2|^3|^4|^5",
         "ext-json": "*"
