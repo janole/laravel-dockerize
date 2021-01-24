@@ -38,9 +38,9 @@ class ContainerStartup extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         return $this->startup();
     }
@@ -48,9 +48,9 @@ class ContainerStartup extends Command
     /**
      * Run all necessary steps to init the Laravel app.
      *
-     * @return mixed
+     * @return int
      */
-    public function startup()
+    public function startup(): int
     {
         $this->info("Init " . config("app.name") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
 
