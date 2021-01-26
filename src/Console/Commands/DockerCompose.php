@@ -11,7 +11,11 @@ class DockerCompose extends Command
      *
      * @var string
      */
-    protected $signature = 'docker:compose {--p|print : Only print the docker-compose.yml only} {--s|save : Only save the docker-compose.yml}';
+    protected $signature =
+        'docker:compose'
+        . ' {--p|print : Only print the docker-compose.yml only}'
+        . ' {--s|save : Only save the docker-compose.yml}'
+        . ' {--dev : Add development and testing services like Selenium and a test database.}';
 
     /**
      * The console command description.
@@ -128,6 +132,11 @@ class DockerCompose extends Command
             "volumes" => $volumes,
         ];
 
+        if ($this->option("dev"))
+        {
+            $yaml = $this->addDevAndTestConfiguration($yaml, $DB);
+        }
+
         $dockercompose = static::yamlize($yaml);
 
         if ($this->option("print"))
@@ -165,6 +174,43 @@ class DockerCompose extends Command
         $this->info("File saved as $file");
 
         return 0;
+    }
+
+    private function addDevAndTestConfiguration(array $config, $DB): array
+    {
+        return array_replace_recursive($config, [
+            "services" => [
+                "app" => [
+                    "environment" => [
+                        "APP_URL" => "http://app.test:8080",
+                    ],
+                    "networks" => [
+                        "default" => [
+                            "aliases" => ["app.test"]
+                        ],
+                    ],
+                ],
+                "test_database" => [
+                    "image" => "postgres",
+                    "environment" => [
+                        "POSTGRES_DB" => $DB["DB_DATABASE"],
+                        "POSTGRES_PASSWORD" => $DB["DB_PASSWORD"],
+                    ],
+                ],
+                "selenium" => [
+                    "image" => "selenium/standalone-chrome-debug",
+                    "ports" => [
+                        "5900:5900",
+                    ],
+                    "shm_size" => "2gb",
+                    "environment" => [
+                        "SCREEN_WIDTH" => 1920,
+                        "SCREEN_HEIGHT" => 1080,
+                        "VNC_NO_PASSWORD" => 1,
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public static function getDockerComposeFileName()
