@@ -160,13 +160,37 @@ class DockerBuild extends Command
     {
         if (file_exists(base_path($file)))
         {
+            // dotenv v2
             try
             {
                 (new Dotenv(base_path(), $file))->overload();
+
+                return;
             }
             catch (\Throwable $th)
             {
+            }
+
+            // dotenv v4
+            try
+            {
                 Dotenv::create(base_path(), $file)->overload();
+
+                return;
+            }
+            catch (\Throwable $th)
+            {
+            }
+
+            // dotenv v5
+            try
+            {
+                Dotenv::createMutable(base_path(), $file)->load();
+
+                return;
+            }
+            catch (\Throwable $th)
+            {
             }
         }
     }
