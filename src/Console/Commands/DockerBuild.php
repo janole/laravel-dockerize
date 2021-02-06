@@ -12,7 +12,11 @@ class DockerBuild extends Command
      *
      * @var string
      */
-    protected $signature = 'docker:build {--p|print : Only print the Dockerfile} {--s|save : Only save the Dockerfile} {--P|push : Push the image}';
+    protected $signature = 'docker:build'
+        . ' {--p|print : Only print the Dockerfile}'
+        . ' {--s|save : Only save the Dockerfile} '
+        . ' {--P|push : Push the image}'
+        . ' {--I|print-image-tag : Only print the image tag}';
 
     /**
      * The console command description.
@@ -93,6 +97,14 @@ class DockerBuild extends Command
 
         //
         $imageInfo = static::getImageInfo();
+
+        //
+        if ($this->option("print-image-tag"))
+        {
+            $this->info($imageInfo["image"]);
+
+            return 0;
+        }
 
         $dockerfile = str_replace('${DOCKERIZE_VERSION}', $imageInfo["version"], $dockerfile);
         $dockerfile = str_replace('${DOCKERIZE_BRANCH}', $imageInfo["branch"], $dockerfile);
