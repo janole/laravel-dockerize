@@ -153,7 +153,13 @@ class DockerBuild extends Command
             $this->line("* " . trim($line));
         }
 
-        pclose($fd);
+        $exitCode = pclose($fd);
+
+        if ($exitCode !== 0)
+        {
+            // explicitly call exit() so that we can use the exit code in a shell!
+            exit($exitCode);
+        }
 
         return 0;
     }
