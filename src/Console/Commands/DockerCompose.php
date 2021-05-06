@@ -128,6 +128,10 @@ class DockerCompose extends Command
             "volumes" => $volumes,
         ];
 
+        // Transform the $yaml if possible / necessary
+        $yaml = $this->transformYaml($yaml, env("DOCKERIZE_COMPOSE_TRANSFORMER"));
+
+        //
         $dockercompose = static::yamlize($yaml);
 
         if ($this->option("print"))
@@ -165,6 +169,39 @@ class DockerCompose extends Command
         $this->info("File saved as $file");
 
         return 0;
+    }
+
+    /**
+     * Load a transformer function from a config PHP script which can transform the YAML
+     * 
+     * The config file should return a "function($yaml): array" that can modify the YAML.
+     * 
+     * Example:
+     * 
+     * <?php
+     * 
+     * return function($yaml)
+     * {
+     *     $yaml["services"]["pgadmin"] = [ ... ];
+     * 
+     *     return $yaml;
+     * }
+     */
+    private function transformYaml($yaml, $transformerPhpConfigfile): array
+    {
+        if (file_exists($transformerPhpConfigfile))
+        {
+            try
+            {
+                return (include_once($transformerPhpConfigfile))($yaml);
+            }
+            catch (\Throwable $t)
+            {
+                $this->error("Transformer '" . $transformerPhpConfigfile . "' failed: " . $t->getMessage());
+            }
+        }
+
+        return $yaml;
     }
 
     public static function getDockerComposeFileName()
