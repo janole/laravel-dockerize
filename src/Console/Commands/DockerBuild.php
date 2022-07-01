@@ -42,20 +42,14 @@ class DockerBuild extends Command
      */
     public function handle(): int
     {
-        return $this->build(false);
+        return $this->build();
     }
 
-    public function build($silent = false): int
+    public function build(): int
     {
         static::loadConfig();
 
         $buildpath = ".";
-
-        /* ignore for now ... TODO: make it optional later on ...
-        // Copy our own .dockerignore (potentially dangerous!)
-        $dockerignore = file_get_contents(base_path("vendor/janole/laravel-dockerize/docker/dockerignore"));
-        file_put_contents(base_path(".dockerignore"), $dockerignore);
-        */
 
         //
         if (@strlen(env("DOCKERIZE_IMAGE")) == 0)
@@ -76,7 +70,7 @@ class DockerBuild extends Command
         {
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
         }
-        else if (($env = ".env") && file_exists(base_path($env)))
+        elseif (($env = ".env") && file_exists(base_path($env)))
         {
             $dockerfile = str_replace('${DOCKERIZE_ENV}', $env, $dockerfile);
         }

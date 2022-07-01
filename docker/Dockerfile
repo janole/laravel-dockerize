@@ -1,3 +1,21 @@
+FROM ${DOCKERIZE_BASE_IMAGE} AS BUILD
+
+# Copy all files
+COPY --chown=www-data:www-data . /app
+
+# Pick the right .env file for the container
+COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
+
+RUN true \
+#
+# Run composer
+#
+    && composer --no-dev install \
+#
+# Clear cache
+#
+    && php artisan view:clear
+
 FROM ${DOCKERIZE_BASE_IMAGE}
 
 #
@@ -7,12 +25,6 @@ ENV APP_VERSION="${DOCKERIZE_VERSION}"
 ENV DOCKERIZE_VERSION="${DOCKERIZE_VERSION}"
 ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
 ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
-
-# Copy all files
-COPY --chown=www-data:www-data . /app
-
-# Pick the right .env file for the container
-COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
 
 # Switch to root
 USER root
@@ -27,14 +39,6 @@ RUN true \
 #
     && locale-gen \
 #
-# Run composer
-#
-    && composer --no-dev install \
-#
-# Clear cache
-#
-    && php artisan view:clear \
-#
 # Create startup script
 #
     && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
@@ -42,3 +46,6 @@ RUN true \
 
 # Switch back to container user
 USER ${DOCKERIZE_CONTAINER_USER}
+
+# Copy Laravel App from BUILD stage
+COPY --from=BUILD --chown=www-data:www-data /app /app
