@@ -1,0 +1,65 @@
+FROM ${DOCKERIZE_BASE_IMAGE} AS build
+
+# Copy all files
+COPY --chown=www-data:www-data . /app
+
+# Pick the right .env file for the container
+COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
+
+# Clean-up the .env file
+RUN sed -i "/^DOCKERIZE_COMPOSE_ENV_.*/d;/^COMPOSE_PROJECT_NAME.*/d" /app/.env
+
+# Run composer
+RUN composer --no-dev install
+
+# Remove unused files
+RUN rm -rf .env.* .dockerignore .composer
+
+# Clear Laravel view cache
+RUN php artisan view:clear
+
+# Create stage with PHP vendor only
+FROM scratch AS vendor
+COPY --from=BUILD /app/vendor /app/vendor
+
+# Create stage with all files except PHP vendor
+FROM build AS app
+RUN rm -rf /app/vendor
+
+# Build final base image
+FROM ${DOCKERIZE_BASE_IMAGE}
+
+#
+ENV APP_VERSION="${DOCKERIZE_VERSION}"
+
+#
+ENV DOCKERIZE_VERSION="${DOCKERIZE_VERSION}"
+ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
+ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
+
+# Switch to root
+USER root
+
+RUN true \
+#
+# Enable Locale
+#
+    && sed "s/^#[ \t]*\(${DOCKERIZE_LOCALE}\)/\\1/" -i /etc/locale.gen \
+#
+# Install/generate locale
+#
+    && locale-gen \
+#
+# Create startup script
+#
+    && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
+    && chmod a+x /container-startup.sh
+
+# Switch back to container user
+USER ${DOCKERIZE_CONTAINER_USER}
+
+# Copy PHP vendor
+COPY --from=vendor --chown=www-data:www-data /app/vendor /app/vendor
+
+# Copy Laravel App (all remaining files except PHP vendor)
+COPY --from=app --chown=www-data:www-data /app /app
