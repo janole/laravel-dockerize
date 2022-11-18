@@ -42,6 +42,10 @@ USER root
 
 RUN true \
 #
+# Adjust PHP settings
+#
+    && sed -i 's/^serialize_precision = .*/serialize_precision = 14/' /usr/local/etc/php/php.ini \
+#
 # Enable Locale
 #
     && sed "s/^#[ \t]*\(${DOCKERIZE_LOCALE}\)/\\1/" -i /etc/locale.gen \
