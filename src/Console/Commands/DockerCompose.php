@@ -236,7 +236,12 @@ class DockerCompose extends Command
                     $key.= ":";
                 }
 
-                $yaml .= str_repeat(" ", $indent) . "$key \"" . str_replace('"', "'", $val) . "\"\n";
+                if (is_string($val) || !is_numeric($val))
+                {
+                    $val = '"' . str_replace('"', "'", $val) . '"';
+                }
+
+                $yaml .= str_repeat(" ", $indent) . "$key $val\n";
             }
         }
 
