@@ -35,6 +35,10 @@ RUN true \
 #
     && php artisan view:clear \
 #
+# Run container:build
+#
+    && php artisan container:build --run \
+#
 # Create startup script
 #
     && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \

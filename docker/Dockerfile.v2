@@ -18,6 +18,9 @@ RUN rm -rf .env.* .dockerignore .composer
 # Clear Laravel view cache
 RUN php artisan view:clear
 
+# Run container:build
+RUN php artisan container:build --run
+
 # Create stage with PHP vendor only
 FROM scratch AS vendor
 COPY --from=BUILD /app/vendor /app/vendor
