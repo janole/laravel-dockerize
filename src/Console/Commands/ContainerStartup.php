@@ -51,35 +51,35 @@ class ContainerStartup extends Command
      */
     public function startup(): int
     {
-        $this->info("Init " . config("app.name") . "/" . env("DOCKERIZE_IMAGE") . ":" . env("DOCKERIZE_VERSION") . "-" . env("DOCKERIZE_BRANCH") . " ...");
+        $this->info('Init ' . config('app.name') . '/' . env('DOCKERIZE_IMAGE') . ':' . env('DOCKERIZE_VERSION') . '-' . env('DOCKERIZE_BRANCH') . ' ...');
 
         if ($this->waitForDatabase() != 0)
         {
-            $db = config("database.connections." . config("database.default"));
+            $db = config('database.connections.' . config('database.default'));
 
-            $this->error("ERROR: Cannot connect to database " . @$db["host"] . ":" . @$db["port"] . " / " . @$db["database"]);
+            $this->error('ERROR: Cannot connect to database ' . @$db['host'] . ':' . @$db['port'] . ' / ' . @$db['database']);
 
             return -1;
         }
 
-        if (!($time = $this->lastUpdated()) && !$this->option("force-first"))
+        if (!($time = $this->lastUpdated()) && !$this->option('force-first'))
         {
             return 0;
         }
 
         $firstRun = !Schema::hasTable('users');
 
-        if (!$firstRun && $this->option("force-first") && $this->confirm("** WARNING! Use first-run/init seeders? You might lose data!"))
+        if (!$firstRun && $this->option('force-first') && $this->confirm('** WARNING! Use first-run/init seeders? You might lose data!'))
         {
             $firstRun = true;
         }
 
-        $this->info(($firstRun ? "First run" : "Run migrations") . " (" . $time . ") ...");
+        $this->info(($firstRun ? 'First run' : 'Run migrations') . ' (' . $time . ') ...');
 
-        Artisan::call("migrate", ["--force" => true]);
+        Artisan::call('migrate', ['--force' => true]);
         $this->info(trim(Artisan::output()));
 
-        $id = $firstRun ? "1" : "2";
+        $id = $firstRun ? '1' : '2';
 
         $classes = json_decode(env("DOCKERIZE_SEED$id"), true) ?? [];
         $artisan = json_decode(env("DOCKERIZE_ARTISAN$id"), true) ?? [];
@@ -88,7 +88,7 @@ class ContainerStartup extends Command
         {
             $this->info("Running $class.");
 
-            if (Artisan::call("db:seed", ["--force" => true, "--class" => "$class"]))
+            if (Artisan::call('db:seed', ['--force' => true, '--class' => "$class"]))
             {
                 $this->error(trim(Artisan::output()));
             }
@@ -104,7 +104,7 @@ class ContainerStartup extends Command
             }
         }
 
-        $this->info("Finished.");
+        $this->info('Finished.');
 
         return 0;
     }
@@ -122,11 +122,11 @@ class ContainerStartup extends Command
             }
             catch (\Exception $e)
             {
-                $msg = "** Waiting for database ...";
+                $msg = '** Waiting for database ...';
 
-                if (config("app.debug"))
+                if (config('app.debug'))
                 {
-                    $msg .= " (" . $e->getMessage() . ")";
+                    $msg .= ' (' . $e->getMessage() . ')';
                 }
 
                 $this->info($msg);
@@ -142,7 +142,7 @@ class ContainerStartup extends Command
     {
         if (!Schema::hasTable('rfInternal'))
         {
-            DB::transaction(function()
+            DB::transaction(function ()
             {
                 Schema::create('rfInternal', function (Blueprint $table)
                 {
@@ -154,22 +154,22 @@ class ContainerStartup extends Command
             });
         }
 
-        $this->info("Checking Database ...");
+        $this->info('Checking Database ...');
 
         $time = microtime(true);
 
         if (!($lock = DB::table('rfInternal')->where('name', 'lock.db')->lockForUpdate()->first()))
         {
-            DB::table('rfInternal')->insert(["name" => "lock.db", "value" => $time]);
+            DB::table('rfInternal')->insert(['name' => 'lock.db', 'value' => $time]);
         }
-        else if (@floatval($lock->value) > $time - 10.0)
+        elseif (@floatval($lock->value) > $time - 10.0)
         {
-            $this->info("Init skipped.");
+            $this->info('Init skipped.');
 
             return false;
         }
 
-        DB::table('rfInternal')->where("name", "lock.db")->lockForUpdate()->update(["value" => $time]);
+        DB::table('rfInternal')->where('name', 'lock.db')->lockForUpdate()->update(['value' => $time]);
 
         // check ...
 

@@ -44,37 +44,33 @@ class DockerCompose extends Command
     {
         DockerBuild::loadConfig();
 
-        //
         $imageInfo = DockerBuild::getImageInfo();
-        $IMAGE = $imageInfo["image"];
+        $IMAGE = $imageInfo['image'];
 
-        //
         $DB =
         [
-            "DB_HOST" => "database",
-            "DB_PORT" => "5432",
-            "DB_DATABASE" => "database",
-            "DB_USERNAME" => "postgres",
-            "DB_PASSWORD" => "0secret0",
+            'DB_HOST' => 'database',
+            'DB_PORT' => '5432',
+            'DB_DATABASE' => 'database',
+            'DB_USERNAME' => 'postgres',
+            'DB_PASSWORD' => '0secret0',
         ];
 
-        //
         $volumes = [];
 
-        //
         $app = [];
 
-        $app["image"] = $IMAGE;
-        $app["ports"] = ["0.0.0.0:" . env("DOCKERIZE_PORT", 3333) . ":" . env("DOCKERIZE_CONTAINER_PORT", 80)];
+        $app['image'] = $IMAGE;
+        $app['ports'] = ['0.0.0.0:' . env('DOCKERIZE_PORT', 3333) . ':' . env('DOCKERIZE_CONTAINER_PORT', 80)];
 
-        if (($appVolumes = json_decode(env("DOCKERIZE_SHARE"), true)))
+        if (($appVolumes = json_decode(env('DOCKERIZE_SHARE'), true)))
         {
-            $app["volumes"] = $appVolumes;
+            $app['volumes'] = $appVolumes;
         }
 
         $env = [];
-        $env["APP_URL"] = "http://" . env("DOCKERIZE_HOST", "localhost") . ":" . env("DOCKERIZE_PORT", 3333);
-        $env["APP_ENV"] = env("APP_ENV", "production");
+        $env['APP_URL'] = 'http://' . env('DOCKERIZE_HOST', 'localhost') . ':' . env('DOCKERIZE_PORT', 3333);
+        $env['APP_ENV'] = env('APP_ENV', 'production');
 
         foreach ($DB as $key => $val)
         {
@@ -83,58 +79,52 @@ class DockerCompose extends Command
 
         foreach ($_ENV as $key => $val)
         {
-            if (strpos($key, "DOCKERIZE_COMPOSE_ENV_") === 0)
+            if (strpos($key, 'DOCKERIZE_COMPOSE_ENV_') === 0)
             {
-                $env[substr($key, strlen("DOCKERIZE_COMPOSE_ENV_"))] = $val;
+                $env[substr($key, strlen('DOCKERIZE_COMPOSE_ENV_'))] = $val;
             }
         }
 
         foreach (getenv() as $key => $val)
         {
-            if (strpos($key, "DOCKERIZE_COMPOSE_ENV_") === 0)
+            if (strpos($key, 'DOCKERIZE_COMPOSE_ENV_') === 0)
             {
-                $env[substr($key, strlen("DOCKERIZE_COMPOSE_ENV_"))] = $val;
+                $env[substr($key, strlen('DOCKERIZE_COMPOSE_ENV_'))] = $val;
             }
         }
 
-        $app["environment"] = $env;
+        $app['environment'] = $env;
 
-        //
-        $database =        
+        $database =
         [
-            "image" => "postgres",
-            "environment" => 
-            [
-                "POSTGRES_DB" => $DB["DB_DATABASE"],
-                "POSTGRES_PASSWORD" => $DB["DB_PASSWORD"]
+            'image' => 'postgres',
+            'environment' => [
+                'POSTGRES_DB' => $DB['DB_DATABASE'],
+                'POSTGRES_PASSWORD' => $DB['DB_PASSWORD'],
             ],
-            "volumes" =>
-            [
-                "postgres-data:/var/lib/postgresql/data"
-            ]
+            'volumes' => [
+                'postgres-data:/var/lib/postgresql/data',
+            ],
         ];
 
-        $volumes["postgres-data"] = ["labels" => ["com.janole.laravel-dockerize.description" => "Laravel Database Volume"]];
+        $volumes['postgres-data'] = ['labels' => ['com.janole.laravel-dockerize.description' => 'Laravel Database Volume']];
 
-        //
         $yaml =
         [
-            "version" => "3",
-            "services" =>
-            [
-                "app" => $app,
-                "database" => $database,
+            'version' => '3',
+            'services' => [
+                'app' => $app,
+                'database' => $database,
             ],
-            "volumes" => $volumes,
+            'volumes' => $volumes,
         ];
 
         // Transform the $yaml if possible / necessary
-        $yaml = $this->transformYaml($yaml, env("DOCKERIZE_COMPOSE_TRANSFORMER"));
+        $yaml = $this->transformYaml($yaml, env('DOCKERIZE_COMPOSE_TRANSFORMER'));
 
-        //
         $dockercompose = static::yamlize($yaml);
 
-        if ($this->option("print"))
+        if ($this->option('print'))
         {
             $this->info($dockercompose);
 
@@ -143,7 +133,7 @@ class DockerCompose extends Command
 
         $filename = static::getDockerComposeFileName();
 
-        if ($this->option("save"))
+        if ($this->option('save'))
         {
             $file = base_path($filename);
 
@@ -154,7 +144,6 @@ class DockerCompose extends Command
             return 0;
         }
 
-        //
         exec("docker inspect --type=image $IMAGE > /dev/null 2>&1", $output, $ret);
 
         if ($ret != 0)
@@ -162,7 +151,6 @@ class DockerCompose extends Command
             $this->warn("Please build $IMAGE first.");
         }
 
-        //
         $dockercompose = "# Dynamic docker-compose.yml\n# !!! DO NOT EDIT THIS FILE BY HAND -- YOUR CHANGES WILL BE OVERWRITTEN !!!\n\n$dockercompose";
         file_put_contents($file = base_path($filename), $dockercompose);
 
@@ -173,17 +161,17 @@ class DockerCompose extends Command
 
     /**
      * Load a transformer function from a config PHP script which can transform the YAML
-     * 
+     *
      * The config file should return a "function($yaml): array" that can modify the YAML.
-     * 
+     *
      * Example:
-     * 
+     *
      * <?php
-     * 
+     *
      * return function($yaml)
      * {
      *     $yaml["services"]["pgadmin"] = [ ... ];
-     * 
+     *
      *     return $yaml;
      * }
      */
@@ -193,7 +181,7 @@ class DockerCompose extends Command
         {
             try
             {
-                return (include_once($transformerPhpConfigfile))($yaml);
+                return (include_once $transformerPhpConfigfile)($yaml);
             }
             catch (\Throwable $t)
             {
@@ -206,34 +194,34 @@ class DockerCompose extends Command
 
     public static function getDockerComposeFileName()
     {
-        $files = env("COMPOSE_FILE", "docker-compose.yml");
+        $files = env('COMPOSE_FILE', 'docker-compose.yml');
 
-        $first = explode(env("COMPOSE_PATH_SEPARATOR", ":"), $files)[0];
+        $first = explode(env('COMPOSE_PATH_SEPARATOR', ':'), $files)[0];
 
         return $first;
     }
 
     public static function yamlize($array, $indent = 0)
     {
-        $yaml = "";
+        $yaml = '';
 
         foreach ($array as $key => $val)
         {
             if (is_array($val))
             {
-                $yaml .= str_repeat(" ", $indent) . "$key:\n";
+                $yaml .= str_repeat(' ', $indent) . "$key:\n";
 
                 $yaml .= static::yamlize($val, $indent + 1);
             }
             else
             {
-                if (@intval($key) > 0 || $key == "0")
+                if (@intval($key) > 0 || $key == '0')
                 {
-                    $key = "-";
+                    $key = '-';
                 }
                 else
                 {
-                    $key.= ":";
+                    $key .= ':';
                 }
 
                 if (is_string($val) || !is_numeric($val))
@@ -241,7 +229,7 @@ class DockerCompose extends Command
                     $val = '"' . str_replace('"', "'", $val) . '"';
                 }
 
-                $yaml .= str_repeat(" ", $indent) . "$key $val\n";
+                $yaml .= str_repeat(' ', $indent) . "$key $val\n";
             }
         }
 

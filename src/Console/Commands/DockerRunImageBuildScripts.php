@@ -44,7 +44,8 @@ class DockerRunImageBuildScripts extends Command
      */
     public function handle(): int
     {
-        if (!$this->option('run')) {
+        if (!$this->option('run'))
+        {
             $this->error('ERROR: This artisan command must only run from Dockerfile.');
 
             return -1;
@@ -79,10 +80,12 @@ class DockerRunImageBuildScripts extends Command
 
         $artisan = json_decode(env('DOCKERIZE_BUILD_COMMANDS'), true) ?? [];
 
-        foreach ($artisan as $command) {
+        foreach ($artisan as $command)
+        {
             $this->info("Running $command.");
 
-            if (Artisan::call($command)) {
+            if (Artisan::call($command))
+            {
                 $this->error(trim(Artisan::output()));
             }
         }
