@@ -19,17 +19,8 @@ RUN rm -rf .env.* .dockerignore .composer
 RUN php artisan view:clear
 
 # Run container:build
-RUN php artisan container:build --run
+RUN php artisan docker:run-image-build-scripts --run
 
-# Create stage with PHP vendor only
-FROM scratch AS vendor
-COPY --from=BUILD /app/vendor /app/vendor
-
-# Create stage with all files except PHP vendor
-FROM build AS app
-RUN rm -rf /app/vendor
-
-# Build final base image
 FROM ${DOCKERIZE_BASE_IMAGE}
 
 #

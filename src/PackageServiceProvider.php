@@ -10,10 +10,10 @@ class PackageServiceProvider extends ServiceProvider
     {
         $this->commands(
             [
-                \janole\Laravel\Dockerize\Console\Commands\ContainerStartup::class,
-                \janole\Laravel\Dockerize\Console\Commands\ContainerBuild::class,
-                \janole\Laravel\Dockerize\Console\Commands\DockerBuild::class,
-                \janole\Laravel\Dockerize\Console\Commands\DockerCompose::class,
+                Console\Commands\ContainerStartup::class,
+                Console\Commands\DockerBuild::class,
+                Console\Commands\DockerRunImageBuildScripts::class,
+                Console\Commands\DockerCompose::class,
             ]
         );
     }

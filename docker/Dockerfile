@@ -37,7 +37,7 @@ RUN true \
 #
 # Run container:build
 #
-    && php artisan container:build --run \
+    && php artisan docker:run-image-build-scripts --run \
 #
 # Create startup script
 #
