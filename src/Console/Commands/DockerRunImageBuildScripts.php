@@ -22,9 +22,6 @@ class DockerRunImageBuildScripts extends Command
      */
     protected $description = 'Run configured build scripts during "docker build ..."';
 
-    /** @var string */
-    private $name;
-
     /**
      * Create a new command instance.
      *
@@ -33,8 +30,6 @@ class DockerRunImageBuildScripts extends Command
     public function __construct()
     {
         parent::__construct();
-
-        $this->name = config('app.name') . '/' . env('DOCKERIZE_IMAGE') . ':' . env('DOCKERIZE_VERSION') . '-' . env('DOCKERIZE_BRANCH');
     }
 
     /**
@@ -61,7 +56,7 @@ class DockerRunImageBuildScripts extends Command
      */
     public function runBuildService(): void
     {
-        $this->info('Execute build service for ' . $this->name . ' ...');
+        $this->info('Execute build service for ' . $this->getDockerizeInfo() . ' ...');
 
         /** @var DockerBuildImageService $service */
         $service = app()->make(DockerBuildImageService::class);
@@ -76,7 +71,7 @@ class DockerRunImageBuildScripts extends Command
      */
     public function runBuildCommands(): void
     {
-        $this->info('Execute build commands for ' . $this->name . ' ...');
+        $this->info('Execute build commands for ' . $this->getDockerizeInfo() . ' ...');
 
         $artisan = json_decode(env('DOCKERIZE_BUILD_COMMANDS'), true) ?? [];
 
@@ -91,5 +86,10 @@ class DockerRunImageBuildScripts extends Command
         }
 
         $this->info('Finished.');
+    }
+
+    private function getDockerizeInfo(): string
+    {
+        return config('app.name') . '/' . env('DOCKERIZE_IMAGE') . ':' . env('DOCKERIZE_VERSION') . '-' . env('DOCKERIZE_BRANCH');
     }
 }
