@@ -46,6 +46,8 @@ class DockerRunImageBuildScripts extends Command
             return -1;
         }
 
+        $this->runBuildService();
+
         $this->runBuildCommands();
 
         return 0;
@@ -54,26 +56,34 @@ class DockerRunImageBuildScripts extends Command
     /**
      * Run all configured build commands during "docker build ..." process.
      */
-    public function runBuildService(): void
+    protected function runBuildService(): void
     {
-        $this->info('Execute build service for ' . $this->getDockerizeInfo() . ' ...');
-
         /** @var DockerBuildImageService $service */
         $service = app()->make(DockerBuildImageService::class);
 
-        $service->run();
+        if (is_subclass_of($service, DockerBuildImageService::class))
+        {
+            $this->info('Execute build service for ' . $this->getDockerizeInfo() . ' ...');
 
-        $this->info('Finished.');
+            $service->run();
+
+            $this->info('Finished.');
+        }
     }
 
     /**
      * Run all configured build commands during "docker build ..." process.
      */
-    public function runBuildCommands(): void
+    protected function runBuildCommands(): void
     {
-        $this->info('Execute build commands for ' . $this->getDockerizeInfo() . ' ...');
-
         $artisan = json_decode(env('DOCKERIZE_BUILD_COMMANDS'), true) ?? [];
+
+        if (empty($artisan))
+        {
+            return;
+        }
+
+        $this->info('Execute build commands for ' . $this->getDockerizeInfo() . ' ...');
 
         foreach ($artisan as $command)
         {
