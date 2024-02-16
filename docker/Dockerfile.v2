@@ -1,5 +1,13 @@
 FROM ${DOCKERIZE_BASE_IMAGE} AS build
 
+#
+ENV APP_VERSION="${DOCKERIZE_VERSION}"
+
+#
+ENV DOCKERIZE_VERSION="${DOCKERIZE_VERSION}"
+ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
+ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
+
 # Copy all files
 COPY --chown=www-data:www-data . /app
 
@@ -23,14 +31,6 @@ RUN php artisan docker:run-image-build-scripts --run
 
 FROM ${DOCKERIZE_BASE_IMAGE}
 
-#
-ENV APP_VERSION="${DOCKERIZE_VERSION}"
-
-#
-ENV DOCKERIZE_VERSION="${DOCKERIZE_VERSION}"
-ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
-ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
-
 # Switch to root
 USER root
 
@@ -52,8 +52,13 @@ RUN true \
 # Switch back to container user
 USER ${DOCKERIZE_CONTAINER_USER}
 
-# Copy PHP vendor
-COPY --from=vendor --chown=www-data:www-data /app/vendor /app/vendor
+#
+ENV APP_VERSION="${DOCKERIZE_VERSION}"
 
-# Copy Laravel App (all remaining files except PHP vendor)
-COPY --from=app --chown=www-data:www-data /app /app
+#
+ENV DOCKERIZE_VERSION="${DOCKERIZE_VERSION}"
+ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
+ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
+
+# Copy app from build stage
+COPY --from=build /app /app
