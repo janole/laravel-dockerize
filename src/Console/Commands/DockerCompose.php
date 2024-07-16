@@ -111,7 +111,6 @@ class DockerCompose extends Command
 
         $yaml =
         [
-            'version' => '3',
             'services' => [
                 'app' => $app,
                 'database' => $database,
