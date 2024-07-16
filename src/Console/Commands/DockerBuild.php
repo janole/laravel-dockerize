@@ -119,12 +119,19 @@ class DockerBuild extends Command
             return 0;
         }
 
-        $cmd = 'cd ' . base_path() . ' && docker build -t ' . $imageInfo['image'] . " -f $buildpath/Dockerfile .";
+        $cmd = 'cd ' . base_path() . ' && docker buildx build -t ' . $imageInfo['image'];
+
+        if (env('DOCKERIZE_PLATFORM'))
+        {
+            $cmd .= ' --platform=' . env('DOCKERIZE_PLATFORM');
+        }
 
         if ($this->option('push'))
         {
-            $cmd .= ' && docker push ' . $imageInfo['image'];
+            $cmd .= ' --push';
         }
+
+        $cmd .= " -f $buildpath/Dockerfile .";
 
         $this->info($cmd);
 
