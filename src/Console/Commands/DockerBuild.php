@@ -4,6 +4,7 @@ namespace janole\Laravel\Dockerize\Console\Commands;
 
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Process;
 
 class DockerBuild extends Command
 {
@@ -135,20 +136,7 @@ class DockerBuild extends Command
 
         $this->info($cmd);
 
-        $fd = popen("($cmd) 2>&1", 'r');
-
-        while (($line = fgets($fd)) !== false)
-        {
-            $this->line('* ' . trim($line));
-        }
-
-        $exitCode = pclose($fd);
-
-        if ($exitCode !== 0)
-        {
-            // explicitly call exit() so that we can use the exit code in a shell!
-            exit($exitCode);
-        }
+        Process::tty()->run($cmd);
 
         return 0;
     }
