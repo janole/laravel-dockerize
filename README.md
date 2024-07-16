@@ -59,4 +59,4 @@ Creating test-app_app_1      ... done
 
 ### Internals ...
 
-- **laravel-dockerize** will add another *artisan* command to your project: `container:startup`. This command will be automatically called each time the container is (re-)started and it will try to initialize the database for you. For this, it will wait for the database to be ready, call `php artisan migrate --force` and then try to run the initial seeders `DOCKERIZE_SEED1` or updated seeders `DOCKERIZE_SEED2` (if the database wasn't fresh.)
+- **laravel-dockerize** will add another *artisan* command to your project: `container:startup`. This command will be automatically called each time the container is (re-)started and it will try to initialize the database for you. For this, it will wait for the database to be ready, call `php artisan migrate --force` and then try to run the initial seeders `DOCKERIZE_SEED1` or updating seeders `DOCKERIZE_SEED2` (if the database wasn't fresh.)
