@@ -54,6 +54,7 @@ class DockerCompose extends Command
             'DB_DATABASE' => 'database',
             'DB_USERNAME' => 'postgres',
             'DB_PASSWORD' => '0secret0',
+            'DB_CONNECTION' => 'pgsql',
         ];
 
         $volumes = [];
