@@ -100,7 +100,7 @@ class DockerBuild extends Command
         $dockerfile = str_replace('${DOCKERIZE_BRANCH}', $imageInfo['branch'], $dockerfile);
         $dockerfile = str_replace('${DOCKERIZE_COMMIT}', $imageInfo['commit'], $dockerfile);
 
-        $dockerfile = str_replace('${DOCKERIZE_CONTAINER_USER}', env('DOCKERIZE_CONTAINER_USER', 'root'), $dockerfile);
+        $dockerfile = str_replace('${DOCKERIZE_CONTAINER_USER}', env('DOCKERIZE_CONTAINER_USER', 'www-data'), $dockerfile);
 
         if ($this->option('print'))
         {
