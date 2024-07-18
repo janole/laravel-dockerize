@@ -118,7 +118,7 @@ class DockerCompose extends Command
         {
             // Add a queue (clone the sched service)
             $yaml['services']['queue'] = $yaml['services']['app'];
-            unset($yaml['services']['sched']['ports']);
+            unset($yaml['services']['queue']['ports']);
             $yaml['services']['queue']['command'] = [
                 'bash',
                 '-c',
