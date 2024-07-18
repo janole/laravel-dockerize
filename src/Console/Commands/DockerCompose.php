@@ -21,16 +21,6 @@ class DockerCompose extends Command
     protected $description = 'Run the Laravel App via Docker';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return int
@@ -63,6 +53,7 @@ class DockerCompose extends Command
 
         $app['image'] = $IMAGE;
         $app['ports'] = ['0.0.0.0:' . env('DOCKERIZE_PORT', 3333) . ':' . env('DOCKERIZE_CONTAINER_PORT', 8080)];
+        $app['depends_on'] = ['database' => ['condition' => 'service_started']];
 
         if (($appVolumes = json_decode(env('DOCKERIZE_SHARE'), true)))
         {
@@ -78,15 +69,7 @@ class DockerCompose extends Command
             $env[$key] = $val;
         }
 
-        foreach ($_ENV as $key => $val)
-        {
-            if (strpos($key, 'DOCKERIZE_COMPOSE_ENV_') === 0)
-            {
-                $env[substr($key, strlen('DOCKERIZE_COMPOSE_ENV_'))] = $val;
-            }
-        }
-
-        foreach (getenv() as $key => $val)
+        foreach ([...$_ENV, getenv()] as $key => $val)
         {
             if (strpos($key, 'DOCKERIZE_COMPOSE_ENV_') === 0)
             {
@@ -118,6 +101,30 @@ class DockerCompose extends Command
             ],
             'volumes' => $volumes,
         ];
+
+        if (env('DOCKERIZE_COMPOSE_WITH_SCHEDULER'))
+        {
+            // Add a scheduler service (clone the app service, remove ports!)
+            $yaml['services']['sched'] = $yaml['services']['app'];
+            unset($yaml['services']['sched']['ports']);
+            $yaml['services']['sched']['command'] = [
+                'bash',
+                '-c',
+                'while true; do sleep 60; (php /app/artisan schedule:run -n -vvv &); done',
+            ];
+        }
+
+        if (env('DOCKERIZE_COMPOSE_WITH_QUEUE'))
+        {
+            // Add a queue (clone the sched service)
+            $yaml['services']['queue'] = $yaml['services']['app'];
+            unset($yaml['services']['sched']['ports']);
+            $yaml['services']['queue']['command'] = [
+                'bash',
+                '-c',
+                'while true; do sleep 10; (php /app/artisan queue:work --timeout=240 --memory=256 --stop-when-empty -vvv); done',
+            ];
+        }
 
         // Transform the $yaml if possible / necessary
         $yaml = $this->transformYaml($yaml, env('DOCKERIZE_COMPOSE_TRANSFORMER'));
