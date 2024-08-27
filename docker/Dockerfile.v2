@@ -9,19 +9,16 @@ ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
 ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
 
 # Copy all files
-COPY --chown=www-data:www-data . /app
+COPY . /app
 
 # Pick the right .env file for the container
-COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
+COPY ${DOCKERIZE_ENV} /app/.env
 
 # Clean-up the .env file
 RUN sed -i "/^DOCKERIZE_COMPOSE_ENV_.*/d;/^COMPOSE_PROJECT_NAME.*/d" /app/.env
 
 # Run composer
 RUN composer --no-dev install
-
-# Fix permission set by composer
-RUN chown -R ${DOCKERIZE_CONTAINER_USER} .config .local
 
 # Remove unused files
 RUN rm -rf .env.* .dockerignore .composer
@@ -64,4 +61,4 @@ ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
 ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
 
 # Copy app from build stage
-COPY --from=build /app /app
+COPY --from=build --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} /app /app

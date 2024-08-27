@@ -9,10 +9,10 @@ ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
 ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
 
 # Copy all files
-COPY --chown=www-data:www-data . /app
+COPY --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} . /app
 
 # Pick the right .env file for the container
-COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
+COPY --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} ${DOCKERIZE_ENV} /app/.env
 
 # Switch to root
 USER root
@@ -30,7 +30,7 @@ RUN true \
 # Run composer
 #
     && composer --no-dev install \
-    && chown -R ${DOCKERIZE_CONTAINER_USER} .config .local \
+    && chown -R ${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} .config .local \
 #
 # Clear cache
 #
