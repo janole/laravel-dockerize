@@ -64,7 +64,7 @@ ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
 COPY --from=build --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} /app /app
 
 # Run container:build
-php artisan docker:run-image-build-scripts --run
+RUN php artisan docker:run-image-build-scripts --run
 
 # Switch back to container user
 USER ${DOCKERIZE_CONTAINER_USER}
