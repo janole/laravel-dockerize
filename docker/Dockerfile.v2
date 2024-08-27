@@ -26,9 +26,6 @@ RUN rm -rf .env.* .dockerignore .composer
 # Clear Laravel view cache
 RUN php artisan view:clear
 
-# Run container:build
-RUN php artisan docker:run-image-build-scripts --run
-
 FROM ${DOCKERIZE_BASE_IMAGE}
 
 # Switch to root
@@ -43,6 +40,10 @@ RUN true \
 # Install/generate locale
 #
     && locale-gen \
+#
+# Run container:build
+#
+    && php artisan docker:run-image-build-scripts --run \
 #
 # Create startup script
 #
