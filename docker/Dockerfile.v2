@@ -17,6 +17,9 @@ COPY ${DOCKERIZE_ENV} /app/.env
 # Clean-up the .env file
 RUN sed -i "/^DOCKERIZE_COMPOSE_ENV_.*/d;/^COMPOSE_PROJECT_NAME.*/d" /app/.env
 
+# Switch to root
+USER root
+
 # Run composer
 RUN composer --no-dev install
 
@@ -25,6 +28,9 @@ RUN rm -rf .env.* .dockerignore .composer
 
 # Clear Laravel view cache
 RUN php artisan view:clear
+
+# Switch back to container user
+USER ${DOCKERIZE_CONTAINER_USER}
 
 FROM ${DOCKERIZE_BASE_IMAGE}
 
@@ -41,17 +47,10 @@ RUN true \
 #
     && locale-gen \
 #
-# Run container:build
-#
-    && php artisan docker:run-image-build-scripts --run \
-#
 # Create startup script
 #
     && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
     && chmod a+x /container-startup.sh
-
-# Switch back to container user
-USER ${DOCKERIZE_CONTAINER_USER}
 
 #
 ENV APP_VERSION="${DOCKERIZE_VERSION}"
@@ -63,3 +62,9 @@ ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
 
 # Copy app from build stage
 COPY --from=build --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} /app /app
+
+# Run container:build
+php artisan docker:run-image-build-scripts --run
+
+# Switch back to container user
+USER ${DOCKERIZE_CONTAINER_USER}
