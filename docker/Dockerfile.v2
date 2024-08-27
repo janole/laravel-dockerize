@@ -20,6 +20,9 @@ RUN sed -i "/^DOCKERIZE_COMPOSE_ENV_.*/d;/^COMPOSE_PROJECT_NAME.*/d" /app/.env
 # Run composer
 RUN composer --no-dev install
 
+# Fix permission set by composer
+RUN chown -R ${DOCKERIZE_CONTAINER_USER} .config .local
+
 # Remove unused files
 RUN rm -rf .env.* .dockerignore .composer
 

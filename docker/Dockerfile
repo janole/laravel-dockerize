@@ -30,6 +30,7 @@ RUN true \
 # Run composer
 #
     && composer --no-dev install \
+    && chown -R ${DOCKERIZE_CONTAINER_USER} .config .local \
 #
 # Clear cache
 #
