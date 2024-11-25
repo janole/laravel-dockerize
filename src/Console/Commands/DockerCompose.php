@@ -81,7 +81,7 @@ class DockerCompose extends Command
 
         $database =
         [
-            'image' => 'postgres',
+            'image' => env('DOCKERIZE_POSTGRES_IMAGE', 'postgres:16'),
             'environment' => [
                 'POSTGRES_DB' => $DB['DB_DATABASE'],
                 'POSTGRES_PASSWORD' => $DB['DB_PASSWORD'],
