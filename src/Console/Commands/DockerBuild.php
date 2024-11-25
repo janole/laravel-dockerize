@@ -17,6 +17,7 @@ class DockerBuild extends Command
         . ' {--p|print : Only print the Dockerfile}'
         . ' {--s|save : Only save the Dockerfile} '
         . ' {--P|push : Push the image}'
+        . ' {--pull=yes : Always pull the base image before building}'
         . ' {--I|print-image-tag : Only print the image tag}';
 
     /**
@@ -125,6 +126,11 @@ class DockerBuild extends Command
         if (env('DOCKERIZE_PLATFORM'))
         {
             $cmd .= ' --platform=' . env('DOCKERIZE_PLATFORM');
+        }
+
+        if ($this->option('pull') === "yes")
+        {
+            $cmd .= ' --pull';
         }
 
         if ($this->option('push'))
