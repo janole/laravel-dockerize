@@ -27,18 +27,6 @@ RUN true \
 #
     && locale-gen \
 #
-# Run composer
-#
-    && composer --no-dev install \
-#
-# Clear cache
-#
-    && php artisan view:clear \
-#
-# Run container:build
-#
-    && php artisan docker:run-image-build-scripts --run \
-#
 # Create startup script
 #
     && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
@@ -46,3 +34,13 @@ RUN true \
 
 # Switch back to container user
 USER ${DOCKERIZE_CONTAINER_USER}
+
+RUN true \
+#
+# Run composer
+#
+    && composer --no-dev install \
+#
+# Clear cache
+#
+    && php artisan view:clear
