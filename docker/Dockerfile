@@ -9,12 +9,12 @@ ENV DOCKERIZE_BRANCH="${DOCKERIZE_BRANCH}"
 ENV DOCKERIZE_COMMIT="${DOCKERIZE_COMMIT}"
 
 # Copy all files
-COPY --chown=www-data:www-data . /app
+COPY --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} . /app
 
 # Pick the right .env file for the container
-COPY --chown=www-data:www-data ${DOCKERIZE_ENV} /app/.env
+COPY --chown=${DOCKERIZE_CONTAINER_USER}:${DOCKERIZE_CONTAINER_USER} ${DOCKERIZE_ENV} /app/.env
 
-# Switch to root
+# Switch to root for system-wide changes
 USER root
 
 RUN true \
@@ -27,6 +27,16 @@ RUN true \
 #
     && locale-gen \
 #
+# Create startup script
+#
+    && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
+    && chmod a+x /container-startup.sh
+
+# Switch back to container user: everything below writes into /app and must be owned by it
+USER ${DOCKERIZE_CONTAINER_USER}
+
+RUN true \
+#
 # Run composer
 #
     && composer --no-dev install \
@@ -37,12 +47,4 @@ RUN true \
 #
 # Run container:build
 #
-    && php artisan docker:run-image-build-scripts --run \
-#
-# Create startup script
-#
-    && printf "#!/bin/sh\nphp /app/artisan container:startup\n" > /container-startup.sh \
-    && chmod a+x /container-startup.sh
-
-# Switch back to container user
-USER ${DOCKERIZE_CONTAINER_USER}
+    && php artisan docker:run-image-build-scripts --run

@@ -5,9 +5,15 @@ namespace janole\Laravel\Dockerize\Console\Commands;
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
+use Symfony\Component\Process\Process as SymfonyProcess;
 
 class DockerBuild extends Command
 {
+    /**
+     * Base image used when DOCKERIZE_BASE_IMAGE is not set.
+     */
+    public const DEFAULT_BASE_IMAGE = 'janole/laravel-apache-postgres:0-php85';
+
     /**
      * The name and signature of the console command.
      *
@@ -60,16 +66,9 @@ class DockerBuild extends Command
             return -1;
         }
 
-        if (env('DOCKERIZE_SPLIT_VENDOR'))
-        {
-            $dockerfile = file_get_contents(base_path('vendor/janole/laravel-dockerize/docker/Dockerfile.v2'));
-        }
-        else
-        {
-            $dockerfile = file_get_contents(base_path('vendor/janole/laravel-dockerize/docker/Dockerfile'));
-        }
+        $dockerfile = file_get_contents(base_path('vendor/janole/laravel-dockerize/docker/Dockerfile'));
 
-        $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', env('DOCKERIZE_BASE_IMAGE', 'janole/laravel-apache-postgres:0-php83'), $dockerfile);
+        $dockerfile = str_replace('${DOCKERIZE_BASE_IMAGE}', env('DOCKERIZE_BASE_IMAGE', static::DEFAULT_BASE_IMAGE), $dockerfile);
 
         if (($env = env('DOCKERIZE_ENV')) && file_exists(base_path($env)))
         {
@@ -142,9 +141,15 @@ class DockerBuild extends Command
 
         $this->info($cmd);
 
-        Process::tty()->run($cmd);
+        // TTY gives docker's interactive progress output; without a terminal (CI, scripts) stream the output instead.
+        $result = Process::forever()
+            ->tty(SymfonyProcess::isTtySupported())
+            ->run($cmd, function (string $type, string $output)
+            {
+                $this->getOutput()->write($output);
+            });
 
-        return 0;
+        return $result->exitCode() ?? 1;
     }
 
     public static function loadConfig()
@@ -166,38 +171,7 @@ class DockerBuild extends Command
     {
         if (file_exists(base_path($file)))
         {
-            // dotenv v2
-            try
-            {
-                (new Dotenv(base_path(), $file))->overload();
-
-                return;
-            }
-            catch (\Throwable $th)
-            {
-            }
-
-            // dotenv v4
-            try
-            {
-                Dotenv::create(base_path(), $file)->overload();
-
-                return;
-            }
-            catch (\Throwable $th)
-            {
-            }
-
-            // dotenv v5
-            try
-            {
-                Dotenv::createMutable(base_path(), $file)->load();
-
-                return;
-            }
-            catch (\Throwable $th)
-            {
-            }
+            Dotenv::createMutable(base_path(), $file)->load();
         }
     }
 
